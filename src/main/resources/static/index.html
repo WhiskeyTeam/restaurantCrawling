@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/getKakaoApi.js"></script>
+    <script>
+        window.onload = function () {
+            kakao.maps.load(function () {
+                let src = [];
+                src.push("/dataCrawling.js");
+
+                for (let i = 0; i < src.length; i++) {
+                    let script = document.createElement("script");
+                    script.src = src[i];
+                    document.head.appendChild(script);
+                }
+            });
+        }
+    </script>
+    <title>KakaoMap Data Crawling</title>
+    <style>
+        #container {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+<h1>KakaoMap에서 음식점 정보 받아오기</h1>
+<div id="container">
+    <div id="map" style="width:1000px; height:700px;"></div>
+</div>
+</body>
+</html>
