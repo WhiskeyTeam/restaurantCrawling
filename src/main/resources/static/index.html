@@ -8,6 +8,7 @@
         window.onload = function () {
             kakao.maps.load(function () {
                 let src = [];
+                src.push("/showMap.js");
                 src.push("/dataCrawling.js");
 
                 for (let i = 0; i < src.length; i++) {
@@ -29,6 +30,17 @@
 <h1>KakaoMap에서 음식점 정보 받아오기</h1>
 <div id="container">
     <div id="map" style="width:1000px; height:700px;"></div>
+    <div style="height: 200px; margin-top: 200px; margin-left: 30px">
+        검색반경 설정
+        <input id="rangeCheckBox" type="checkbox">
+        <input id="range" disabled type="range" value="0" min="0" max="1000">
+        <p>반경 :
+            <output id="rangeValue">0</output>
+            km
+        </p>
+        <button id="saveBtn">저장</button>
+        <button id="showRestaurantBtn">음식점 조회</button>
+    </div>
 </div>
 </body>
 </html>

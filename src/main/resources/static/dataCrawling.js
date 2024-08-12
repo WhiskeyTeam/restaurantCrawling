@@ -1,8 +1,22 @@
-/*
+window.marker = new kakao.maps.Marker({});
+// 최근 마커
+window.markers = []; // 마커들을 저장할 배열
+window.circles = []; // 범위를 설정할 배열
+// 지도에 표시할 원 생성
+window.circle = new kakao.maps.Circle({});
+// 범위 표시 사용 여부 확인을 위한 checkbox
+var rangeCheckBox = document.getElementById('rangeCheckBox');
+// 설정한 범위의 반경 값
+var rangeValue = document.getElementById('rangeValue');
+// 범위를 설정하는 슬라이더
+var range = document.getElementById('range');
+// 설정한 원 범위를 저장
+var saveBtn = document.getElementById('saveBtn');
+
+/* ==============================================================================================================================
+ *
  * 사용자의 위치에 마커 표시
  * */
-window.map = null;
-
 function displayMarkerCurrentLocation(locPosition) {
 
     var markerImageSrc = '//t1.daumcdn.net/localimg/localimages/07/2018/mw/m640/ico_marker.png', // 마커이미지
@@ -34,13 +48,33 @@ if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
         function (position) {
 
-            var lat = position.coords.latitude,  // 위도
-                lng = position.coords.longitude; // 경도
+            window.presentLocation = new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude); // 전역 변수에 현위치를 저장
 
-            window.presentLocation = new kakao.maps.LatLng(lat, lng); // 전역 변수에 현위치를 저장
-
-            console.log("확인");
             displayMarkerCurrentLocation(window.presentLocation); // 현위치에 마커와 인포윈도우를 표시
+
+            window.clusterer = new kakao.maps.MarkerClusterer({
+                // map: window.map,
+                markers: markers
+            });
+
+            addMarker();
+
+            saveBtn.addEventListener('click', function () {
+                window.clusterer.addMarker(marker);
+                window.circles.push(window.circle);
+                var tmp = new kakao.maps.Circle({
+                    map: window.map,
+                    center: window.circle.getPosition(),
+                    radius: window.circle.getRadius(),
+                    strokeWeight: 5,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1,
+                    strokeStyle: 'solid',
+                    fillColor: '#FF0000',
+                    fillOpacity: 0.2
+                });
+                tmp.setMap(window.map);
+            });
         },
         function (err) {
             console.warn('ERROR(' + err.code + '): ' + err);
@@ -54,6 +88,126 @@ if (navigator.geolocation) {
 } else {
     console.log('현재 위치를 알 수 없어 기본 위치로 이동합니다.');
     window.presentLocation = new kakao.maps.LatLng(33.450701, 126.570667);
-    console.log("실패");
     displayMarkerCurrentLocation(window.presentLocation);
+    window.clusterer = new kakao.maps.MarkerClusterer({
+        markers: markers
+    });
+    addMarker();
+
+    saveBtn.addEventListener('click', function () {
+        window.clusterer.addMarker(marker);
+        window.circles.push(window.circle);
+        var tmp = new kakao.maps.Circle({
+            map: window.map,
+            center: window.circle.getPosition(),
+            radius: window.circle.getRadius(),
+            strokeWeight: 5,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1,
+            strokeStyle: 'solid',
+            fillColor: '#FF0000',
+            fillOpacity: 0.2
+        });
+        tmp.setMap(window.map);
+    });
 }
+
+
+/* ==============================================================================================================================
+ *
+ * 사용자가 다수의 마커를 생성하면 마커배열에 저장
+ * */
+function addMarker() {
+    kakao.maps.event.addListener(window.map, 'click', function (mouseEvent) {
+        // 클릭한 위치에 마커 표시
+        var marker = new kakao.maps.Marker({
+            position: mouseEvent.latLng,
+            clickable: true
+        });
+
+        // 마커가 지도 위에 표시되도록 설정합니다
+        marker.setMap(window.map);
+
+        // 생성된 마커를 전역으로 설정
+        window.marker = marker;
+
+        kakao.maps.event.addListener(marker, 'click', function () {
+            clusterer.removeMarker(marker);
+        });
+    });
+
+}
+
+// checkbox의 값이 변경될 때마다 슬라이더 사용 가능 여부를 변경
+rangeCheckBox.addEventListener('click', (event) => {
+    if (event.currentTarget.checked) {
+        range.disabled = false;
+    } else {
+        if (window.circle.getMap()) {
+            window.circle.setMap(null);
+        }
+
+        range.value = 0;
+        rangeValue.textContent = 0;
+        range.disabled = true;
+    }
+});
+
+// 범위가 변경될 때마다 범위 값과 범위를 표시하는 원의 크기 변경
+range.addEventListener('input', function () {
+
+    // 범위를 km 단위로 변환
+    rangeValue.textContent = range.value / 1000;
+
+    // 범위 checkbox가 설정된 상태인 경우에만 범위 설정 가능
+    if (rangeCheckBox.checked) {
+
+        if (window.circle.getMap()) {
+            window.circle.setMap(null);
+        }
+
+        // 원의 설정 변경
+        window.circle.setOptions({
+            center: window.marker.getPosition(),
+            radius: range.value,
+            strokeWeight: 5,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1,
+            strokeStyle: 'solid',
+            fillColor: '#FF0000',
+            fillOpacity: 0.2
+        })
+
+        // 지도에 윈을 표시
+        window.circle.setMap(window.map);
+    }
+});
+
+// 버튼을 클릭하면 웹에서 범위 내의 음식점 정보를 받아옴.
+document.getElementById('showRestaurantBtn').addEventListener('click', function () {
+
+    var lat = [];
+    var lng = [];
+    var radius = [];
+    for (let i = 0; i < window.circles.length; i++) {
+        lat.push(window.circles[i].getPosition().getLat());
+        lng.push(window.circles[i].getPosition().getLng());
+        radius.push(window.circles[i].getRadius());
+    }
+
+    console.log(lat);
+    console.log(lng);
+    console.log(radius);
+
+    $.ajax({
+        url: "/showRestaurantList",
+        type: "POST",
+        data: {lat, lng, radius},
+        success: function () {
+            console.log("성공");
+        },
+        error: function () {
+            console.log("실패");
+        }
+    })
+});

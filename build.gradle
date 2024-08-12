@@ -21,6 +21,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    flatDir(dirs: 'libs')
 }
 
 dependencies {
@@ -34,6 +35,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation name: 'RestRequestInvoker-0.2.3-SNAPSHOT'
+    implementation 'org.modelmapper:modelmapper:3.1.1'
 }
 
 tasks.named('test') {
