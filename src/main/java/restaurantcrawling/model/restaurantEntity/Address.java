@@ -21,7 +21,7 @@ public class Address {
     private String name;    // 주소
 
     @Column(name = "latitude", nullable = false)
-    private Double latitude;    // 위도
+    private double latitude;    // 위도
 
     @Column(name = "longitude", nullable = false)
     private double longitude;    // 경도

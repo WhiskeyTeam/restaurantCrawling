@@ -61,7 +61,6 @@ if (navigator.geolocation) {
 
             saveBtn.addEventListener('click', function () {
                 window.clusterer.addMarker(marker);
-                window.circles.push(window.circle);
                 var tmp = new kakao.maps.Circle({
                     map: window.map,
                     center: window.circle.getPosition(),
@@ -74,6 +73,7 @@ if (navigator.geolocation) {
                     fillOpacity: 0.2
                 });
                 tmp.setMap(window.map);
+                window.circles.push(tmp);
             });
         },
         function (err) {

@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tbl_member")
 @Entity
@@ -27,7 +26,7 @@ public class Member {
     private String nickname;    // 닉네임
 
     @Column(nullable = false, unique = true)    // 중복 방지
-    private String loginId; // 로그인 아이디 -> 기본 로그인, 소셜로그인
+    private String loginId; // 로그인 아이디
 
     @Column(nullable = false)
     private String email;   // 이메일
@@ -42,4 +41,16 @@ public class Member {
 
     @Column(nullable = false)
     private boolean isActive;   // 활성화/비활성화
+
+    @OneToOne
+    @JoinColumn(name = "profile_image_id")
+    private ImageFile profileImage;    // 프로필 사진
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;    // 회원 권한
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "login_type", nullable = false)
+    private LoginType loginType;    // 로그인 타입
 }

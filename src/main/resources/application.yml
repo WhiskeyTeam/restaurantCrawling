@@ -1,16 +1,40 @@
 spring:
   application:
     name: restaurantCrawling
+  config:
+    import:
+      classpath:/application.yml
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/whisky
-    username:
-    password:
+    username: lucas
+    password: lucas
+  #  datasource:
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://db.dokalab.site/whiskeydb
+  #    username: test
+  #    password: test
 
-  generate-ddl: false
-  show-sql: true
-  database: mysql
-  properties:
+  jpa:
     hibernate:
-      '[format_sql]': true
+      ddl-auto: update
+    generate-ddl: false
+    show-sql: true
+    database: mysql
+    properties:
+      hibernate:
+        '[format_sql]': true
+
+
+kakao:
+  apiKey: 5b715daa89f60c5efb497bb6eacce570
+  restApiKey: b240f7efa1ddd0c6783556375f2052e1
+
+server:
+  ssl:
+    enabled: true
+    key-store-type: PKCS12
+    key-store: classpath:keystore.p12
+    key-store-password: chltmddls1!!
+    key-alias: linemac-ssl
