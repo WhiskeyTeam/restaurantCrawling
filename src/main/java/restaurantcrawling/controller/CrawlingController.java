@@ -13,7 +13,9 @@ import restaurantcrawling.model.restaurantEntity.*;
 import restaurantcrawling.model.service.MemberService;
 import restaurantcrawling.model.service.RestaurantService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,6 +24,7 @@ public class CrawlingController {
 
     private final MemberService memberService;
     private final ModelMapper modelMapper;
+
 
     @Value("${kakao.restApiKey}")
     private String restApiKey;
@@ -59,8 +62,42 @@ public class CrawlingController {
             log.info("""
                     =====================================================================================================================
                     """);
-            for (var document : response.getDocuments()) {
+            for (DocumentDTO document : response.getDocuments()) {
                 System.out.println(document.toString());
+                registNewRestaurant(document, (Member) session.getAttribute("member"));
+            }
+        }
+    }
+
+    @PostMapping("/showRestaurantListAuto")
+    @ResponseBody
+    @Transactional
+    public void showRestaurantListAuto(HttpSession session, @RequestParam double lat, @RequestParam double lng, @RequestParam int radius) throws Exception {
+
+        session.setAttribute("member", getTempMember());
+
+        String apiUrl = "https://dapi.kakao.com/v2/local/search/category.json?" +
+                "category_group_code=" + "FD6" +
+                "&page=1" +
+                "&size=15" +
+                "&sort=distance" +
+                "&x=" + lng +
+                "&y=" + lat +
+                "&radius=" + radius;
+
+        var invoker = new RestInvoker<>(apiUrl, JSONDataDTO.class);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "KakaoAK " + this.restApiKey);
+        JSONDataDTO response = invoker.request(headers, RequestMethod.GET);
+
+        Map<Long, DocumentDTO> documents = new HashMap<>();
+
+        for (DocumentDTO document : response.getDocuments()) {
+//
+            log.info(document.getId().toString());
+            documents.put(document.getId(), document);
+            if (document.getPhone() != null && !document.getPhone().equals("")) {
+                log.info(document.toString());
                 registNewRestaurant(document, (Member) session.getAttribute("member"));
             }
         }
@@ -80,7 +117,7 @@ public class CrawlingController {
             categoryName = "기타";
         }
         Restaurant restaurant = new Restaurant(
-                null,
+                document.getId(),
                 document.getPlace_name(),
                 restaurantService.getCategory(categoryName),
                 document.getPhone(),
@@ -100,6 +137,8 @@ public class CrawlingController {
                 null,
                 null
         );
+
+        log.info("restaurant : " + restaurant.toString());
         restaurantService.registNewRestaurant(restaurant);
     }
 }

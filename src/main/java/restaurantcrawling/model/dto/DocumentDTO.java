@@ -9,12 +9,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 public class DocumentDTO {
+    private Long id;
     private String address_name;
     private String category_group_code;
     private String category_group_name;
     private String category_name;
     //    private int distance;
-    //    private int id;
     private String phone;
     private String place_name;
     //    private String place_url;
@@ -28,12 +28,12 @@ public class DocumentDTO {
 //        String category = category_name.split(" > ")[1];
 
         return "DocsDTO{" +
-                "address_name='" + address_name + '\'' +
+                "id=" + id +
+                ", address_name='" + address_name + '\'' +
                 ", category_group_code='" + category_group_code + '\'' +
                 ", category_group_name='" + category_group_name + '\'' +
                 ", category_name='" + category_name + '\'' +
 //                ", distance=" + distance +
-//                ", id=" + id +
                 ", phone='" + phone + '\'' +
                 ", place_name='" + place_name + '\'' +
 //                ", place_url='" + place_url + '\'' +
